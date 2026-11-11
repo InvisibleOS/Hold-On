@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Household, Payment, Status } from "@/lib/store.ts";
 
-export type HouseholdView = Household & { mode: "sandbox" | "demo"; ai: boolean; push: boolean };
+export type HouseholdView = Household & { mode: "sandbox" | "demo"; ai: boolean; push: boolean; linked: boolean; paypalReady: boolean };
 
 /** Polls the household every 1.5s while the tab is visible. */
 export function useHousehold(h: string) {

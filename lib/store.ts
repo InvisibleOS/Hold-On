@@ -75,8 +75,8 @@ export type Rules = {
 
 export type Household = {
   id: string;
-  rose: { name: string; lang: string };
-  maya: { name: string; relation: string };
+  rose: { name: string; lang: string; vaultId?: string; rulesSignedAt?: number };
+  maya: { name: string; relation: string; phone?: string };
   rules: Rules;
   payees: Payee[];
   payments: Payment[];

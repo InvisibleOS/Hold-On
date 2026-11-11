@@ -128,6 +128,10 @@ function Home({ data, heading, go }: H & { data: HouseholdView; go: (s: Screen) 
         </button>
       </div>
 
+      <a className="btn btn-secondary mt-3 w-full" href={`/setup?h=${data.id}`}>
+        My safety rules
+      </a>
+
       <h2 className="mb-2 mt-8 text-2xl font-bold">Recent</h2>
       <ul className="grid gap-2">
         {data.payments.slice(0, 5).map((p) => (
@@ -291,7 +295,7 @@ function PaymentScreen({ data, id, heading, busy, send, done }: H & { data: Hous
   if (!p) return <Title heading={heading}>Payment not found</Title>;
   const act = (action: string, extra: object = {}) => send("/api/payment", { id: p.id, action, ...extra });
   const callMaya = (
-    <a className="btn btn-secondary" href="tel:+15550100200">
+    <a className="btn btn-secondary" href={`tel:${data.maya.phone ?? "+15550100200"}`}>
       📞 Call {data.maya.name}
     </a>
   );

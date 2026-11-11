@@ -15,8 +15,11 @@ import { assess, type Assess } from "./guardian.ts";
 import { notifyMaya } from "./notify.ts";
 import { log, newId, type Household, type Payee, type Payment, type Status } from "./store.ts";
 
-export const paypalMode = (): "sandbox" | "demo" =>
-  process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.env.ROSE_VAULT_ID ? "sandbox" : "demo";
+/** Rose's saved PayPal: linked in this household, or the shared demo account from env. */
+export const vaultIdFor = (h: Household) => h.rose.vaultId ?? process.env.ROSE_VAULT_ID;
+
+export const paypalMode = (h: Household): "sandbox" | "demo" =>
+  process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && vaultIdFor(h) ? "sandbox" : "demo";
 
 const demoId = (kind: string) => `DEMO-${kind}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 const MAX_HOLD_HOURS = 72; // PayPal's 3-day honor period for capturing an authorization
@@ -61,12 +64,12 @@ export async function startPayment(h: Household, input: NewPayment): Promise<Pay
 }
 
 async function hold(h: Household, p: Payment) {
-  if (paypalMode() === "demo") {
+  if (paypalMode(h) === "demo") {
     p.paypal.orderId = demoId("ORDER");
     p.paypal.authorizationId = demoId("AUTH");
   } else {
     const a = await pp.authorize({
-      vaultId: process.env.ROSE_VAULT_ID!,
+      vaultId: vaultIdFor(h)!,
       amount: p.amount,
       description: `Hold On: ${p.to.name}`,
       paymentId: p.id,
@@ -104,7 +107,7 @@ export async function release(h: Household, p: Payment, by: "auto" | "maya") {
   take(p, by === "auto" ? ["checking"] : ["held"], "releasing");
   p.decidedBy = by;
   try {
-    if (paypalMode() === "demo") {
+    if (paypalMode(h) === "demo") {
       p.paypal.captureId = demoId("CAPTURE");
       p.paypal.payoutBatchId = demoId("PAYOUT");
       p.paypal.payoutStatus = "PENDING";
@@ -131,7 +134,7 @@ export async function stop(h: Household, p: Payment, by: "maya" | "rose" | "time
   take(p, by === "rose" ? ["held", "asking"] : ["held"], to);
   p.decidedBy = by;
   try {
-    if (paypalMode() === "sandbox") await pp.voidAuthorization(p.paypal.authorizationId!, p.id);
+    if (paypalMode(h) === "sandbox") await pp.voidAuthorization(p.paypal.authorizationId!, p.id);
     log(h, "paypal", `Authorization ${p.paypal.authorizationId} VOIDED — the money never left ${h.rose.name}'s account`, p.id);
   } catch (err) {
     // The hold lapses on its own at PayPal; still record the problem.

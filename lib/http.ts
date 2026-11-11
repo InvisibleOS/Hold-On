@@ -22,7 +22,9 @@ export async function handle(fn: () => Promise<Response>): Promise<Response> {
 export const view = (h: Household) =>
   Response.json({
     ...h,
-    mode: paypalMode(),
+    mode: paypalMode(h),
+    linked: Boolean(h.rose.vaultId),
+    paypalReady: Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET),
     ai: Boolean(process.env.ANTHROPIC_API_KEY),
     push: Boolean(process.env.NTFY_TOPIC && process.env.PUBLIC_URL && process.env.APP_SECRET),
   });
