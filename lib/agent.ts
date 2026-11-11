@@ -3,6 +3,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { startPayment } from "./flow.ts";
+import { LIMIT } from "./http.ts";
 import { newId, type Household, type Payment } from "./store.ts";
 
 /** Plain-language result an agent can relay to its user. */
@@ -67,6 +68,7 @@ export function buildServer(h: Household) {
       },
     },
     async (args) => {
+      if (h.payments.length >= LIMIT.payments) return { content: [{ type: "text", text: "Demo limit reached for this household." }], isError: true };
       const p = await agentPay(h, args);
       return { content: [{ type: "text", text: describeForAgent(h, p) }] };
     },

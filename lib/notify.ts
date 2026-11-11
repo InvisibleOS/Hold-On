@@ -32,7 +32,7 @@ export async function notifyMaya(h: Household, p: Payment): Promise<boolean> {
       method: "POST",
       headers: {
         // Header values must stay ASCII.
-        Title: `Hold On: ${h.rose.name} needs you ($${p.amount})`,
+        Title: `Hold On: ${h.rose.name} needs you ($${Number(p.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })})`,
         Priority: "high",
         Tags: "warning",
         Click: open,
