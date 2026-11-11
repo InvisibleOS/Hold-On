@@ -3,7 +3,7 @@ services:
   - type: web
     name: holdon
     runtime: node
-    plan: free # always on: no cold start when a judge opens the link
+    plan: free # sleeps when idle; an uptime pinger every 10 min keeps it warm for judges
     buildCommand: npm ci && npm run build
     startCommand: npm start
     healthCheckPath: /
