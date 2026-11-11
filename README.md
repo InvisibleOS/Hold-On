@@ -112,7 +112,6 @@ Without keys, the app runs in **demo mode**: PayPal calls return clearly labelle
 - **ntfy.sh** for phone push notifications.
 - The browser's **Web Speech API** for voice in and out.
 - **Model Context Protocol** (official TypeScript SDK) for Agent Guard.
-- Built with the **PayPal AI Toolkit** (sandbox MCP, `/paypal:doctor`).
 
 ## Production path
 
