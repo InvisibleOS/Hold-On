@@ -1,0 +1,10 @@
+{
+  "name": "Hold On",
+  "short_name": "Hold On",
+  "description": "Pay safely. Risky payments wait for family.",
+  "start_url": "/rose",
+  "display": "standalone",
+  "background_color": "#f7f4ee",
+  "theme_color": "#0b3d91",
+  "icons": [{ "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }]
+}

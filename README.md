@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hold On
 
-## Getting Started
+**Fraud systems stop payments you didn't make. Hold On protects the ones you're tricked into making.**
 
-First, run the development server:
+Hold On is a payments app for older adults, built on PayPal and AI. When Rose (78) tries to send money that looks like a scam, Hold On places a **PayPal authorization hold** instead of sending it. The money stays in her account while her daughter Maya takes a look. An AI guardian asks Rose gentle questions, like a kind bank teller would. Rose's own rules, which she set while calm, set a floor the AI can never talk down.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Judge quickstart (60 seconds, no setup)
+
+1. Open the hosted demo: **`<HOSTED_URL>/judge`**
+2. Click **"1. The grandson in jail"**. On Rose's phone (left), tap **Send money**, then **Send $2,400**.
+3. Answer the guardian's questions, or skip them. The payment is **held**.
+4. On Maya's phone (right), read the AI brief and tap **Block it**.
+5. Watch the **PayPal truth panel**: the order is created, the authorization is created, then **voided**. No money ever moved.
+
+Also try **"3. Paying the plumber"**: it goes straight through with no friction. **"4. Rose was coached"** is held even though the reason sounds innocent. **"2. The fake PayPal invoice"** sends a real sandbox PayPal invoice from a fake company. Tap **Is this real?** on it.
+
+## How it works
+
+```
+Rose taps Send ─┬─▶ PayPal: Orders v2 intent=AUTHORIZE on her saved (vaulted) PayPal
+                │      money is held on her account, nothing is sent
+                └─▶ Guardian: Rose's rules → AI asks ≤2 kind questions → verdict
+
+  safe  ─▶ capture (Payments v2) → payout to the recipient (Payouts v1, PayPal or Venmo)
+  risky ─▶ HOLD + Maya alerted (in-app, plus a phone push with Block/Release buttons)
+           ├─ Maya: Release → capture → payout → "Delivered ✓" (webhook)
+           ├─ Maya: Block   → void (the money never left)
+           ├─ Rose: Cancel  → void
+           └─ no answer within Rose's time limit (max 72 h) → automatic void
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### PayPal APIs used
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| What Rose and Maya experience | PayPal API |
+|---|---|
+| Link PayPal once, no popup on each payment | **Vault v3** (Payment Method Tokens): setup token → payment token |
+| Money held the instant Rose taps Send | **Orders v2**: `intent: AUTHORIZE` with `payment_source.paypal.vault_id` |
+| Safe payment, or Maya releases | **Payments v2** capture → **Payouts v1** to a PayPal email or **Venmo** phone |
+| Maya blocks, Rose cancels, or time runs out | **Payments v2** void |
+| "Delivered ✓" | **Webhooks**, signature-verified |
+| The fake-invoice scenario | **Invoicing v2**: create and send from a "scammer" sandbox account |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Every mutating PayPal call sends a `PayPal-Request-Id` idempotency key, and each payment step only moves forward. A double tap or a retry can never capture twice.
 
-## Learn More
+### AI
 
-To learn more about Next.js, take a look at the following resources:
+- **The guardian** (`lib/guardian.ts`):
+  1. Rose's rules run first and set a risk floor. Ordinary payments to people she knows skip the AI entirely.
+  2. Otherwise the AI returns a schema-validated verdict: either a question with tap-able answers, or a decision with risk, scam type, red flags with quoted evidence, a message for Rose in her language, and a brief for Maya.
+  3. **The final risk is the higher of the rules and the AI.** If the AI is slow, down or declines, the rules decide alone. Text Rose pastes in is treated as untrusted evidence, never as instructions.
+- **"Is this real?"**: Rose pastes a message or takes a photo, and the AI reads it, including real PayPal invoices from fake sellers.
+- **Scam Lab** (`npm run eval`): 40 labeled cases (24 scams across 10 types, 16 legitimate payments) run through the real guardian. It reports catch rate, false alarms and latency. The cases are synthetic, written by us from public FTC and FBI scam descriptions.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Accessibility
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Rose's app targets WCAG 2.2 AA, and AAA where cheap:
+- **Text:** the Atkinson Hyperlegible font, 20px+ text, body contrast of 7:1 or more, and dark mode plus Windows high-contrast support.
+- **Touch:** targets of 48px or larger.
+- **Voice:** questions are read aloud, and Rose can answer by voice, with tap and type always available.
+- **Screen readers:** focus moves to each new screen's heading, and updates are announced through live regions.
+- **No time pressure on Rose, ever.** The plain-language copy never blames her.
 
-## Deploy on Vercel
+## Run it yourself
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm install
+cp .env.example .env.local   # fill in sandbox credentials (see below)
+npm run dev                  # http://localhost:3000/judge
+npm test                     # payment state machine checks
+npm run eval                 # Scam Lab (needs ANTHROPIC_API_KEY)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Without keys, the app runs in **demo mode**: PayPal calls return clearly labelled `DEMO-` IDs and the guardian uses rules only. The badges in Judge Mode show which mode is live.
+
+### PayPal sandbox setup
+
+1. At [developer.paypal.com](https://developer.paypal.com/dashboard/) in **Sandbox** mode, create these US accounts under *Testing Tools → Sandbox Accounts*: **Rose** (personal, large balance), **Jake** (personal), **Hold On** (business) and **SecureShield Billing** (business).
+2. Under *Apps & Credentials*, create an app for the Hold On account and enable **Vault** (Advanced options) and **Payouts**. Then create a second app for SecureShield Billing.
+3. Fill in `.env.local`, then save Rose's PayPal once:
+   ```bash
+   node scripts/spike.ts link          # open the URL, log in as Rose, agree
+   node scripts/spike.ts vault <setupTokenId>   # → ROSE_VAULT_ID
+   node scripts/spike.ts hold          # proves authorize, void, capture and payout
+   node scripts/spike.ts webhook <PUBLIC_URL>   # → PAYPAL_WEBHOOK_ID
+   ```
+4. Optional: set `NTFY_TOPIC` (any long random name) and `PUBLIC_URL` to get real phone pushes with Block and Release buttons through the [ntfy](https://ntfy.sh) app.
+
+### Deploy
+
+`render.yaml` deploys a single always-on web service on Render. All state is kept in memory and re-seeded on start, so judges need no database.
+
+## Tools
+
+- **PayPal:** Vault v3, Orders v2, Payments v2, Payouts v1 (including Venmo), Invoicing v2 and Webhooks, all in the sandbox.
+- **LLM**: the guardian's questions and verdicts, and reading messages and screenshots in "Is this real?". It uses structured outputs and server-side refusal fallback.
+- **Next.js 16** on **Render**.
+- **ntfy.sh** for phone push notifications.
+- The browser's **Web Speech API** for voice in and out.
+- Built with the **PayPal AI Toolkit** (sandbox MCP, `/paypal:doctor`).
+
+## Production path
+
+The cleanest home for Hold On is inside PayPal's own Send flow: a "trusted contact" plus a cooling-off hold. PayPal already has the risk signals this demo approximates with rules, such as payee account age and prior scam reports. As a standalone app, it would run on PayPal's platform/marketplace model.
+
+## License
+
+MIT
