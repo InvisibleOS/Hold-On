@@ -176,7 +176,7 @@ export function rulesVerdict(h: Household, p: Payment, r = rulesCheck(h, p)): Ve
     scamType: r.scamType,
     redFlags: r.flags,
     messageToRose: risky
-      ? `Your money is safe — nothing has been sent. Something about this payment needs a second look, so we've asked ${h.maya.name} to check it with you.`
+      ? `Something about this payment needs a second look. You can call ${h.maya.name} now, or cancel it yourself at any time.`
       : `All set. This looks like a normal payment.`,
     briefForMaya: risky
       ? `${h.rose.name} is trying to send $${p.amount} to ${p.to.name} for "${p.purpose}". Warning signs: ${r.flags.map((f) => f.flag).join("; ") || "unusual payment"}. Consider calling her before you decide.`
