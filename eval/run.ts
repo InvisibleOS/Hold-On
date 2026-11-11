@@ -1,4 +1,4 @@
-// Scam Lab: runs every labeled case through the real guardian (rules + AI)
+// Scam Lab: runs every labeled case through the real guardian (rules + Gemini)
 // and reports catch rate, false alarms and latency. Run: node eval/run.ts
 // Cases are synthetic, written by the team from public FTC/FBI scam descriptions.
 import { readFileSync, writeFileSync } from "node:fs";

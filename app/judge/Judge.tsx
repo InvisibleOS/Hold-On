@@ -42,7 +42,7 @@ function Board({ h, fresh }: { h: string; fresh: () => void }) {
         </div>
         <div className="flex flex-wrap gap-2 text-base">
           <Badge on={data?.mode === "sandbox"} yes="PayPal sandbox: live" no="PayPal: demo mode (no keys)" />
-          <Badge on={!!data?.ai} yes="AI guardian: on" no="AI: rules only (no key)" />
+          <Badge on={!!data?.ai} yes="AI guardian: Gemini" no="AI: rules only (no key)" />
         </div>
       </header>
 

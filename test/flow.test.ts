@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-for (const k of ["PAYPAL_CLIENT_ID", "ROSE_VAULT_ID", "ANTHROPIC_API_KEY", "NTFY_TOPIC"]) delete process.env[k];
+for (const k of ["PAYPAL_CLIENT_ID", "ROSE_VAULT_ID", "GEMINI_API_KEY", "NTFY_TOPIC"]) delete process.env[k];
 const { getHousehold } = await import("../lib/store.ts");
 const flow = await import("../lib/flow.ts");
 

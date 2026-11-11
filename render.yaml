@@ -30,7 +30,7 @@ services:
         sync: false
       - key: JAKE_VENMO_PHONE
         sync: false
-      - key: ANTHROPIC_API_KEY
+      - key: GEMINI_API_KEY
         sync: false
       - key: NTFY_TOPIC
         sync: false

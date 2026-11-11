@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FlowError, paypalMode } from "./flow.ts";
+import { aiEnabled } from "./guardian.ts";
 import type { Household } from "./store.ts";
 
 export const fail = (error: string, status = 400) => Response.json({ error }, { status });
@@ -25,7 +26,7 @@ export const view = (h: Household) =>
     mode: paypalMode(h),
     linked: Boolean(h.rose.vaultId),
     paypalReady: Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET),
-    ai: Boolean(process.env.ANTHROPIC_API_KEY),
+    ai: aiEnabled(),
     push: Boolean(process.env.NTFY_TOPIC && process.env.PUBLIC_URL && process.env.APP_SECRET),
   });
 
