@@ -57,7 +57,7 @@ async function runCase(c: Case) {
 }
 
 const todo = cases.filter((c) => !only || c.id === only);
-for (let i = 0; i < todo.length; i += 6) await Promise.all(todo.slice(i, i + 6).map(runCase)); // 6 at a time
+for (let i = 0; i < todo.length; i += 2) await Promise.all(todo.slice(i, i + 2).map(runCase)); // 2 at a time: free-tier quotas are per minute
 console.log();
 
 const scams = rows.filter((r) => r.scam);

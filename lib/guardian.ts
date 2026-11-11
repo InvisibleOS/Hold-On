@@ -4,8 +4,9 @@
 import { z } from "zod";
 import type { Check, Household, Payment, RedFlag, Risk, Verdict } from "./store.ts";
 
-// Free tier models get "high demand" 503s, so each call falls back to a second model.
-const MODELS = (process.env.GEMINI_MODELS ?? "gemini-3.5-flash,gemini-2.5-flash").split(",");
+// Free tier: each model has its own small per-minute quota and gets "high demand" 503s,
+// so a call that is refused moves straight on to the next model in this list.
+const MODELS = (process.env.GEMINI_MODELS ?? "gemini-3.5-flash,gemini-3.5-flash-lite,gemini-2.5-flash,gemini-3.1-flash-lite").split(",");
 export const aiEnabled = () => Boolean(process.env.GEMINI_API_KEY);
 
 type Part = { text: string } | { inline_data: { mime_type: string; data: string } };
