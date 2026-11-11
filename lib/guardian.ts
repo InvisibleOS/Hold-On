@@ -22,6 +22,7 @@ const PATTERNS: { key: string; flag: string; re: RegExp; scam: string }[] = [
   { key: "refund", flag: "A 'refund' that needs you to pay first", re: /refund|antivirus|tech support|remote access|anydesk|secureshield|reverse the charge/i, scam: "tech_support_refund" },
   { key: "urgency", flag: "Pressure to act right now", re: /right now|immediately|urgent|within (24|an|one) hours?|today only|before it'?s too late/i, scam: "other" },
   { key: "romance", flag: "Online friend needs money", re: /customs fee|stuck (overseas|abroad)|oil rig|deployed overseas|plane ticket to (see|visit) (me|you)/i, scam: "romance" },
+  { key: "injection", flag: "Instructions hidden in a web page for AI assistants", re: /(ai|assistant|agent)s?[^.\n]{0,40}(pre-?approved|already approved|must (also )?(pay|send)|ignore (previous|prior|your))|display:\s*none/i, scam: "agent_manipulation" },
   { key: "prize", flag: "Pay a fee to claim a prize", re: /you (have )?won|lottery|sweepstakes|claim (your|the) prize|processing fee/i, scam: "prize_lottery" },
 ];
 

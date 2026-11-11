@@ -8,6 +8,7 @@ const SCENARIOS = [
   { name: "invoice", label: "2. The fake PayPal invoice", hint: "A real PayPal invoice from a fake company, then a 'refund agent' asks for money." },
   { name: "plumber", label: "3. Paying the plumber", hint: "An ordinary payment to someone Rose knows. It should just go through." },
   { name: "coached", label: "4. Rose was coached", hint: "The scammer told Rose to say it's for a vacation. Her own rules still catch it." },
+  { name: "agent", label: "5. AI agent is tricked", hint: "Rose's shopping AI reads a page with hidden instructions and tries to pay a fake fee." },
 ] as const;
 
 export default function Judge() {
@@ -47,7 +48,7 @@ function Board({ h, fresh }: { h: string; fresh: () => void }) {
 
       {error && <p role="alert" className="card mb-4 border-danger bg-danger-bg font-bold text-danger">{error}</p>}
 
-      <section aria-label="Scenarios" className="mb-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+      <section aria-label="Scenarios" className="mb-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
         {SCENARIOS.map((s) => (
           <button key={s.name} className="card text-left hover:border-brand disabled:opacity-60" disabled={busy} onClick={() => send("/api/scenario", { name: s.name })}>
             <span className="block font-bold">{s.label}</span>
