@@ -7,6 +7,7 @@ import { studioTheme, type AgDataSourcesDefinition, type AgPageState, type AgRep
 import { AgStudio, AgStudioProvider } from "ag-studio-react";
 import type { Payment, Status } from "@/lib/store.ts";
 import { LESSONS, STATUS_WORDS, useHousehold } from "../../client.ts";
+import { Icon, Logo } from "../../ui.tsx";
 
 const PROTECTED: Status[] = ["blocked", "cancelled", "expired"];
 const SENT: Status[] = ["sent", "delivered"];
@@ -66,7 +67,7 @@ function dataSources(payments: Payment[]): AgDataSourcesDefinition {
           f("to", "To", "textFormat"),
           f("wallet", "Paid with", "textFormat"),
           f("newPerson", "Recipient", "textFormat"),
-          f("amount", "Amount ($)", "currencyFormat"),
+          f("amount", "Amount", "currencyFormat"),
           f("status", "Status", "textFormat"),
           f("outcome", "Outcome", "textFormat"),
           f("risk", "Risk", "textFormat"),
@@ -121,7 +122,7 @@ const safety: AgPageState = {
           { id: "payments.date" },
           { id: "payments.to" },
           { id: "payments.newPerson" },
-          sum("payments.amount"),
+          { id: "payments.amount" },
           { id: "payments.outcome" },
           { id: "payments.risk" },
           { id: "payments.scamType" },
@@ -161,7 +162,7 @@ const theme = studioTheme.withParams({
   studioCanvasShadow: false,
   studioCanvasBackgroundColor: v("bg"),
   studioWidgetBackgroundColor: v("surface"),
-  studioWidgetBorderRadius: 16,
+  studioWidgetBorderRadius: 20,
   studioWidgetTitleTextColor: v("ink"),
   studioWidgetTitleFontSize: 17,
   chartTextColor: v("ink"),
@@ -188,15 +189,19 @@ export default function SafetyDashboard({ licenseKey }: { licenseKey?: string })
 
   return (
     <main className="flex h-dvh flex-col">
-      <header className="flex flex-wrap items-end justify-between gap-3 px-5 pt-5 pb-2">
-        <div>
-          <p className="text-base font-bold text-brand">Hold On · for {data?.maya.name ?? "Maya"}</p>
-          <h1 className="text-3xl font-bold">{data?.rose.name ?? "Rose"}&apos;s safety dashboard</h1>
+      <header className="border-b border-line bg-surface/70 backdrop-blur">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
+          <Logo sub={`for ${data?.maya.name ?? "Maya"}`} />
+          <a className="btn btn-secondary min-h-11 text-sm" href={`/maya?h=${h}`}>
+            <Icon name="arrowLeft" className="size-4" />
+            Back to alerts
+          </a>
         </div>
-        <a className="btn btn-secondary" href={`/maya?h=${h}`}>
-          Back to alerts
-        </a>
       </header>
+      <div className="px-6 pt-6 pb-1">
+        <p className="eyebrow mb-1">Safety dashboard</p>
+        <h1 className="font-display text-[2rem] leading-tight font-semibold">{data?.rose.name ?? "Rose"}&apos;s money, at a glance</h1>
+      </div>
       <div className="min-h-0 flex-1">
         {inBrowser && sources ? (
           <AgStudioProvider licenseKey={licenseKey}>
