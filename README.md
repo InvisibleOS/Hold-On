@@ -6,7 +6,7 @@ Hold On is a payments app for older adults, built on PayPal and Google Gemini. W
 
 ## Judge quickstart (60 seconds, no setup)
 
-1. Open the hosted demo: **`<HOSTED_URL>/judge`**
+1. Open the hosted demo: **`https://holdon-jdsx.onrender.com/judge`**
 2. Click **"1. The grandson in jail"**. On Rose's phone (left), tap **Send money**, then **Send $2,400**.
 3. Answer the guardian's questions, or skip them. The payment is **held**.
 4. On Maya's phone (right), read the AI brief and tap **Block it**.
@@ -59,7 +59,7 @@ Every mutating PayPal call sends a `PayPal-Request-Id` idempotency key, and each
 AI agents will soon shop and pay for people like Rose, and scammers already hide instructions in web pages to trick them. Hold On is also an **MCP server** that an agent pays through, instead of calling PayPal directly. Every agent payment gets the same hold-and-check as Rose's own, plus a rule for instructions hidden in a page:
 
 ```bash
-MCP endpoint (Streamable HTTP): <HOSTED_URL>/api/mcp?h=<household>
+MCP endpoint (Streamable HTTP): https://holdon-jdsx.onrender.com/api/mcp?h=<household>
 # tools: request_payment (guarded), payment_status
 ```
 
