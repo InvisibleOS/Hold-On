@@ -50,7 +50,9 @@ Every mutating PayPal call sends a `PayPal-Request-Id` idempotency key, and each
   3. **The final risk is the higher of the rules and the AI.** If the AI is slow, down or declines, the rules decide alone. Text Rose pastes in is treated as untrusted evidence, never as instructions.
 - **"Is this real?"**: Rose pastes a message or takes a photo, and Gemini reads it, including real PayPal invoices from fake sellers.
 - **Maya's safety dashboard** (`/maya/dashboard`, built on **AG Studio**): money protected, scams stopped, where Rose's money went, flagged money by scam type, and a grid of every payment, themed with the app's own accessible design tokens and updated live.
-- **Scam Lab** (`npm run eval`): 49 labeled cases (29 scams across 15 types, 20 legitimate payments — including small no-keyword scams and large-but-legit payments) run through the real guardian. It reports catch rate, false alarms and latency. The cases are synthetic, written by us from public FTC and FBI scam descriptions.
+- **Scam Lab** (`npm run eval`): 49 labeled cases (29 scams across 15 types, 20 legitimate payments — including small no-keyword scams and large-but-legit payments) run through the real guardian. It reports catch rate, false alarms and latency.
+  - Rules alone: 24/29 scams caught (83%), 1/20 false alarms (5%).
+  - Rules + Gemini: **29/29 scams caught (100%)**, 2/20 false alarms (10%), median about 4s. Raw results: [`eval/results.json`](eval/results.json). The cases are synthetic, written by us from public FTC and FBI scam descriptions.
 
 ### Agent Guard (agentic commerce)
 
