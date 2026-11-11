@@ -2,7 +2,7 @@
 
 **Fraud systems stop payments you didn't make. Hold On protects the ones you're tricked into making.**
 
-Hold On is a payments app for older adults, built on PayPal and AI. When Rose (78) tries to send money that looks like a scam, Hold On places a **PayPal authorization hold** instead of sending it. The money stays in her account while her daughter Maya takes a look. An AI guardian asks Rose gentle questions, like a kind bank teller would. Rose's own rules, which she set while calm, set a floor the AI can never talk down.
+Hold On is a payments app for older adults, built on PayPal and Google Gemini. When Rose (78) tries to send money that looks like a scam, Hold On places a **PayPal authorization hold** instead of sending it. The money stays in her account while her daughter Maya takes a look. An AI guardian asks Rose gentle questions, like a kind bank teller would. Rose's own rules, which she set while calm, set a floor the AI can never talk down.
 
 ## Judge quickstart (60 seconds, no setup)
 
@@ -19,7 +19,7 @@ Also try **"3. Paying the plumber"**: it goes straight through with no friction.
 ```
 Rose taps Send ─┬─▶ PayPal: Orders v2 intent=AUTHORIZE on her saved (vaulted) PayPal
                 │      money is held on her account, nothing is sent
-                └─▶ Guardian: Rose's rules → AI asks ≤2 kind questions → verdict
+                └─▶ Guardian: Rose's rules → Gemini asks ≤2 kind questions → verdict
 
   safe  ─▶ capture (Payments v2) → payout to the recipient (Payouts v1, PayPal or Venmo)
   risky ─▶ HOLD + Maya alerted (in-app, plus a phone push with Block/Release buttons)
@@ -42,13 +42,13 @@ Rose taps Send ─┬─▶ PayPal: Orders v2 intent=AUTHORIZE on her saved (vau
 
 Every mutating PayPal call sends a `PayPal-Request-Id` idempotency key, and each payment step only moves forward. A double tap or a retry can never capture twice.
 
-### AI
+### AI (Google Gemini)
 
 - **The guardian** (`lib/guardian.ts`):
   1. Rose's rules run first and set a risk floor. Ordinary payments to people she knows skip the AI entirely.
-  2. Otherwise the AI returns a schema-validated verdict: either a question with tap-able answers, or a decision with risk, scam type, red flags with quoted evidence, a message for Rose in her language, and a brief for Maya.
+  2. Otherwise Gemini (`gemini-3.5-flash`, falling back to `gemini-2.5-flash` when busy) returns a schema-validated verdict: either a question with tap-able answers, or a decision with risk, scam type, red flags with quoted evidence, a message for Rose in her language, and a brief for Maya.
   3. **The final risk is the higher of the rules and the AI.** If the AI is slow, down or declines, the rules decide alone. Text Rose pastes in is treated as untrusted evidence, never as instructions.
-- **"Is this real?"**: Rose pastes a message or takes a photo, and the AI reads it, including real PayPal invoices from fake sellers.
+- **"Is this real?"**: Rose pastes a message or takes a photo, and Gemini reads it, including real PayPal invoices from fake sellers.
 - **Maya's safety dashboard** (`/maya/dashboard`, built on **AG Studio**): money protected, scams stopped, where Rose's money went, flagged money by scam type, and a grid of every payment, themed with the app's own accessible design tokens and updated live.
 - **Scam Lab** (`npm run eval`): 49 labeled cases (29 scams across 15 types, 20 legitimate payments — including small no-keyword scams and large-but-legit payments) run through the real guardian. It reports catch rate, false alarms and latency. The cases are synthetic, written by us from public FTC and FBI scam descriptions.
 
@@ -79,7 +79,7 @@ npm install
 cp .env.example .env.local   # fill in sandbox credentials (see below)
 npm run dev                  # http://localhost:3000/judge
 npm test                     # payment state machine checks
-npm run eval                 # Scam Lab (needs ANTHROPIC_API_KEY)
+npm run eval                 # Scam Lab (needs GEMINI_API_KEY, free from aistudio.google.com)
 ```
 
 Without keys, the app runs in **demo mode**: PayPal calls return clearly labelled `DEMO-` IDs and the guardian uses rules only. The badges in Judge Mode show which mode is live.
@@ -104,7 +104,7 @@ Without keys, the app runs in **demo mode**: PayPal calls return clearly labelle
 ## Tools
 
 - **PayPal:** Vault v3, Orders v2, Payments v2, Payouts v1 (including Venmo), Invoicing v2 and Webhooks, all in the sandbox.
-- **LLM**: the guardian's questions and verdicts, and reading messages and screenshots in "Is this real?". It uses structured outputs and server-side refusal fallback.
+- **Google Gemini API** (free tier): the guardian's questions and verdicts, and reading messages and screenshots in "Is this real?". It uses JSON-schema structured output, validated again with Zod, and falls back to a second model when the first is busy.
 - **AG Studio** (AG Grid) for Maya's safety dashboard.
 - **Next.js 16** on **Render**.
 - **ntfy.sh** for phone push notifications.
