@@ -31,7 +31,12 @@ export default function Maya() {
         ))}
       </div>
 
-      <h2 className="mb-2 mt-8 text-2xl font-bold">{data.rose.name}&apos;s payments</h2>
+      <div className="mb-2 mt-8 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-2xl font-bold">{data.rose.name}&apos;s payments</h2>
+        <a className="btn btn-secondary" href={`/maya/dashboard?h=${data.id}`}>
+          Open safety dashboard
+        </a>
+      </div>
       <Activity payments={data.payments} />
 
       <h2 className="mb-2 mt-8 text-2xl font-bold">{data.rose.name}&apos;s rules</h2>
@@ -51,9 +56,9 @@ function Alert({ p, data, busy, act }: { p: Payment; data: HouseholdView; busy: 
   return (
     <article className="card mb-4 border-2 border-warn" aria-label={`Held payment: ${money(p.amount)} to ${p.to.name}`}>
       <p className="font-bold text-warn">⚠️ {risk} · held for {timeLeft(p.holdUntil)} more</p>
-      <p className="mt-1 text-2xl font-bold">
+      <h2 className="mt-1 text-2xl font-bold">
         {money(p.amount)} to {p.to.name}
-      </p>
+      </h2>
       <p className="text-muted">
         {p.to.wallet === "VENMO" ? "Venmo" : "PayPal"} · {p.to.known ? `${data.rose.name} has paid them before` : "someone new"} · “{p.purpose}”
       </p>

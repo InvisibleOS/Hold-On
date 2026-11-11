@@ -34,5 +34,7 @@ services:
         sync: false
       - key: NTFY_TOPIC
         sync: false
+      - key: AG_STUDIO_LICENSE
+        sync: false
       - key: APP_SECRET
         generateValue: true

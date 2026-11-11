@@ -49,6 +49,7 @@ Every mutating PayPal call sends a `PayPal-Request-Id` idempotency key, and each
   2. Otherwise the AI returns a schema-validated verdict: either a question with tap-able answers, or a decision with risk, scam type, red flags with quoted evidence, a message for Rose in her language, and a brief for Maya.
   3. **The final risk is the higher of the rules and the AI.** If the AI is slow, down or declines, the rules decide alone. Text Rose pastes in is treated as untrusted evidence, never as instructions.
 - **"Is this real?"**: Rose pastes a message or takes a photo, and the AI reads it, including real PayPal invoices from fake sellers.
+- **Maya's safety dashboard** (`/maya/dashboard`, built on **AG Studio**): money protected, scams stopped, where Rose's money went, flagged money by scam type, and a grid of every payment, themed with the app's own accessible design tokens and updated live.
 - **Scam Lab** (`npm run eval`): 40 labeled cases (24 scams across 10 types, 16 legitimate payments) run through the real guardian. It reports catch rate, false alarms and latency. The cases are synthetic, written by us from public FTC and FBI scam descriptions.
 
 ### Accessibility
@@ -93,6 +94,7 @@ Without keys, the app runs in **demo mode**: PayPal calls return clearly labelle
 
 - **PayPal:** Vault v3, Orders v2, Payments v2, Payouts v1 (including Venmo), Invoicing v2 and Webhooks, all in the sandbox.
 - **LLM**: the guardian's questions and verdicts, and reading messages and screenshots in "Is this real?". It uses structured outputs and server-side refusal fallback.
+- **AG Studio** (AG Grid) for Maya's safety dashboard.
 - **Next.js 16** on **Render**.
 - **ntfy.sh** for phone push notifications.
 - The browser's **Web Speech API** for voice in and out.

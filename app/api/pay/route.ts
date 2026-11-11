@@ -15,7 +15,7 @@ const Body = z.object({
     .optional(),
   amount: z.string().regex(/^\d{1,5}(\.\d{1,2})?$/, "Enter an amount like 25 or 25.50"),
   purpose: z.string().trim().min(1).max(300),
-  context: z.string().max(3000).optional(),
+  context: z.string().max(3000).nullish().transform((v) => v || undefined),
   initiator: z.enum(["rose", "agent"]).optional(),
 });
 
