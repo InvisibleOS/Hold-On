@@ -10,6 +10,7 @@ export const SCENARIOS = {
   plumber: "Paying the plumber",
   coached: "Rose was coached",
   agent: "An AI shopping agent is tricked",
+  teacher: "A new piano teacher",
 } as const;
 export type ScenarioName = keyof typeof SCENARIOS;
 
@@ -66,6 +67,16 @@ export async function runScenario(h: Household, name: ScenarioName) {
       payee: { id: newId("payee"), name: "Daniel Morgan", wallet: "PAYPAL", handle: "daniel.morgan.travel@example.com", known: false },
       amount: "1500.00",
       purpose: "Deposit for a family vacation",
+    };
+  }
+
+  if (name === "teacher") {
+    h.inbox.unshift({ id: newId("msg"), kind: "sms", from: "Clara Whitfield", body: "Hi Rose! Lovely first lesson today. For this month's four lessons it's $250. See you Tuesday! — Clara", at });
+    h.draft = {
+      scenario: name,
+      payee: { id: newId("payee"), name: "Clara Whitfield (piano)", wallet: "PAYPAL", handle: process.env.JAKE_EMAIL || "clara@example.com", known: false },
+      amount: "250.00",
+      purpose: "Piano lessons for this month",
     };
   }
 

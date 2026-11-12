@@ -19,6 +19,7 @@ export default function Setup() {
   const [limit, setLimit] = useState(200);
   const [secrecy, setSecrecy] = useState(true);
   const [timeout, setTimeoutHours] = useState(24);
+  const [codeWord, setCodeWord] = useState("");
   const [saved, setSaved] = useState(false);
   const loaded = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -33,6 +34,7 @@ export default function Setup() {
       setLimit(data.rules.newPayeeLimit);
       setSecrecy(data.rules.secrecyPause);
       setTimeoutHours(data.rules.timeoutHours);
+      setCodeWord(data.rules.codeWord ?? "");
     }
   }, [data]);
 
@@ -100,7 +102,7 @@ export default function Setup() {
           const r = await send("/api/setup", {
             rosePhone: rosePhone || undefined,
             maya: { name, relation, phone: phone || undefined },
-            rules: { newPayeeLimit: limit, secrecyPause: secrecy, timeoutHours: timeout },
+            rules: { newPayeeLimit: limit, secrecyPause: secrecy, timeoutHours: timeout, codeWord: codeWord || undefined },
           });
           if (r) setSaved(true);
         }}
@@ -149,6 +151,15 @@ export default function Setup() {
               <span className="block font-bold">Always pause a payment if someone asks me to keep it secret.</span>
               <span className="text-base text-muted">Real family and real companies never ask you to hide a payment.</span>
             </span>
+          </label>
+          <label className="mb-6 block">
+            <span className="mb-1 block font-bold">
+              Our family code word <span className="font-normal text-muted">(optional)</span>
+            </span>
+            <span className="mb-2 block text-base text-muted">
+              Pick a word only your family knows, and tell {name || "your safety person"}. If someone says they&apos;re family and needs money fast, Hold On will ask whether they knew it.
+            </span>
+            <input className="field" value={codeWord} onChange={(e) => setCodeWord(e.target.value)} maxLength={40} autoComplete="off" placeholder="e.g. blue pancakes" />
           </label>
           <fieldset>
             <legend className="mb-2 font-bold">If {name || "my safety person"} doesn&apos;t answer, cancel the payment after:</legend>

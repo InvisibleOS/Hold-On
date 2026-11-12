@@ -46,8 +46,11 @@ Every mutating PayPal call sends a `PayPal-Request-Id` idempotency key, and each
 
 - **The guardian** (`lib/guardian.ts`):
   1. Rose's rules run first and set a risk floor. Ordinary payments to people she knows skip the AI entirely.
-  2. Otherwise Gemini (`gemini-3.5-flash`, falling back to `gemini-2.5-flash` when busy) returns a schema-validated verdict: either a question with tap-able answers, or a decision with risk, scam type, red flags with quoted evidence, a message for Rose in her language, and a brief for Maya.
+  2. Otherwise Gemini (`gemini-3.5-flash`, falling back through three more free-tier Gemini models when busy) returns a schema-validated verdict: either a question with tap-able answers, or a decision with risk, scam type, red flags with quoted evidence, a message for Rose in her language, and a brief for Maya.
   3. **The final risk is the higher of the rules and the AI.** If the AI is slow, down or declines, the rules decide alone. Text Rose pastes in is treated as untrusted evidence, never as instructions.
+- **Family code word:** Rose and Maya pick a word in setup. When someone claims to be family and needs money fast, the rules (not the AI) ask Rose whether they knew it. Any answer but "yes" pins the payment at high risk.
+- **Talking points for Maya:** every alert includes 2-3 things to say when she calls Rose, written by Gemini for this scam (with a fallback per scam type). The phone push gets a one-tap **Call Rose** button.
+- **"Trust them from now on":** when Maya releases a payment to someone new, she can add them to Rose's trusted people, so everyday payments to them go straight through. Fewer false alarms over time. Try it in Judge Mode with **"6. A new piano teacher"**.
 - **"Is this real?"**: Rose pastes a message or takes a photo, and Gemini reads it, including real PayPal invoices from fake sellers.
 - **Maya's safety dashboard** (`/maya/dashboard`, built on **AG Studio**): money protected, scams stopped, where Rose's money went, flagged money by scam type, and a grid of every payment, themed with the app's own accessible design tokens and updated live.
 - **Scam Lab** (`npm run eval`): 49 labeled cases (29 scams across 15 types, 20 legitimate payments — including small no-keyword scams and large-but-legit payments) run through the real guardian. It reports catch rate, false alarms and latency.

@@ -19,6 +19,7 @@ test("known payee, usual amount: sent instantly", async () => {
 test("grandparent scam: held, then Maya blocks; second tap is refused", async () => {
   const h = getHousehold("test_scam");
   const p = await flow.startPayment(h, { payee: scam, amount: "2400.00", purpose: "Bail money, please don't tell Mom" });
+  await flow.answer(h, p, "I didn't ask"); // the family code word question comes first
   assert.equal(p.status, "held");
   assert.equal(p.verdict?.risk, "high");
   assert.ok(p.paypal.authorizationId && !p.paypal.captureId, "money held, not captured");
@@ -50,4 +51,31 @@ test("nobody answers: Rose's timeout voids the hold", async () => {
   p.holdUntil = Date.now() - 1;
   await flow.sweep(h);
   assert.equal(p.status, "expired");
+});
+
+test("family code word: asked first, a 'no' pins the risk at high", async () => {
+  const h = getHousehold("test_codeword");
+  const p = await flow.startPayment(h, { payee: scam, amount: "2400.00", purpose: "Grandma it's me, I need bail" });
+  assert.equal(p.status, "asking");
+  assert.equal(p.turns[0].kind, "codeword");
+  await flow.answer(h, p, "No, they didn't");
+  assert.equal(p.status, "held");
+  assert.equal(p.verdict?.risk, "high");
+  assert.ok(p.verdict?.redFlags.some((f) => /code word/.test(f.flag)));
+  assert.ok(p.verdict?.callTips?.length, "Maya gets talking points for the call");
+});
+
+test("Maya trusts a new person once; the next everyday payment goes straight through", async () => {
+  const h = getHousehold("test_trust");
+  // Same payout email as Tom, like the sandbox demo: trust must follow the person, not the email.
+  const clara = { id: "p_clara", name: "Clara (piano)", wallet: "PAYPAL" as const, handle: h.payees.find((x) => x.id === "p_tom")!.handle, known: false };
+  const first = await flow.startPayment(h, { payee: clara, amount: "250.00", purpose: "Piano lessons" });
+  assert.equal(first.status, "held");
+  await flow.release(h, first, "maya");
+  flow.trustPayee(h, first);
+  const trusted = h.payees.find((x) => x.id === clara.id)!;
+  assert.ok(trusted?.known, "Clara is now one of Rose's trusted people");
+  const second = await flow.startPayment(h, { payee: trusted, amount: "250.00", purpose: "Piano lessons" });
+  assert.equal(second.status, "sent");
+  assert.equal(second.decidedBy, "auto");
 });

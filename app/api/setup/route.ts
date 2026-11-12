@@ -15,6 +15,7 @@ const Body = z.object({
     newPayeeLimit: z.number().int().min(0).max(5000),
     secrecyPause: z.boolean(),
     timeoutHours: z.number().int().min(1).max(72), // PayPal's 3-day honor period
+    codeWord: z.string().trim().max(40).optional(),
   }),
 });
 
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     const h = getHousehold(b.h);
     h.maya = { ...b.maya };
     h.rose.phone = b.rosePhone || undefined;
-    h.rules = b.rules;
+    h.rules = { ...b.rules, codeWord: b.rules.codeWord || undefined };
     h.rose.rulesSignedAt = Date.now();
     log(
       h,

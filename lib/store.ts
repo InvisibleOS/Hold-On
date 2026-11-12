@@ -13,7 +13,7 @@ export type Payee = {
   typical?: number; // her usual amount to them
 };
 
-export type Turn = { by: "guardian" | "rose"; text: string; options?: string[] };
+export type Turn = { by: "guardian" | "rose"; text: string; options?: string[]; kind?: "codeword" };
 
 export type RedFlag = { flag: string; evidence: string };
 
@@ -23,6 +23,7 @@ export type Verdict = {
   redFlags: RedFlag[];
   messageToRose: string;
   briefForMaya: string;
+  callTips?: string[]; // what Maya can say when she calls Rose
   source: "ai" | "rules";
 };
 
@@ -71,6 +72,7 @@ export type Rules = {
   newPayeeLimit: number; // check with Maya before paying someone new more than this
   secrecyPause: boolean; // always pause when asked to keep a secret
   timeoutHours: number; // if Maya doesn't answer, cancel after this many hours (max 72)
+  codeWord?: string; // family code word, asked about when someone claims to be family
 };
 
 export type Household = {
@@ -126,7 +128,7 @@ function seed(id: string): Household {
     id,
     rose: { name: "Rose", lang: "en" },
     maya: { name: "Maya", relation: "daughter" },
-    rules: { newPayeeLimit: 200, secrecyPause: true, timeoutHours: 24 },
+    rules: { newPayeeLimit: 200, secrecyPause: true, timeoutHours: 24, codeWord: "blue pancakes" },
     payees,
     payments: [
       history(payees[1], "180.00", "Fixed the kitchen sink", 21),

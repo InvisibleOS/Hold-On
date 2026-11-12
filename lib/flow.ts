@@ -82,7 +82,7 @@ async function hold(h: Household, p: Payment) {
 
 async function apply(h: Household, p: Payment, a: Assess) {
   if (a.kind === "ask") {
-    p.turns.push({ by: "guardian", text: a.question, options: a.options });
+    p.turns.push({ by: "guardian", text: a.question, options: a.options, kind: a.tag });
     p.status = "asking";
     log(h, "guardian", `Asked: "${a.question}"`, p.id);
     return;
@@ -127,6 +127,16 @@ export async function release(h: Household, p: Payment, by: "auto" | "maya") {
     p.error = "PayPal couldn't complete the payment";
     log(h, "error", `Release failed: ${String((err as Error).message)}`, p.id);
   }
+}
+
+/** Maya's "trust them from now on": everyday payments to this person go straight through. */
+export function trustPayee(h: Household, p: Payment) {
+  if (p.status !== "sent" && p.status !== "delivered") return;
+  const typical = Math.round(Number(p.amount));
+  const known = h.payees.find((x) => x.id === p.to.id);
+  if (known) Object.assign(known, { known: true, typical });
+  else h.payees.push({ ...p.to, known: true, typical });
+  log(h, "maya", `${h.maya.name} added ${p.to.name} to ${h.rose.name}'s trusted people`, p.id);
 }
 
 export async function stop(h: Household, p: Payment, by: "maya" | "rose" | "timeout") {

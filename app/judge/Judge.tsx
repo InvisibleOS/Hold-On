@@ -10,7 +10,7 @@ const SCENARIOS = [
     name: "grandson",
     title: "The grandson in jail",
     hint: "A panicked text asks Rose for $2,400 bail by Venmo, and to keep it secret.",
-    steps: ["On Rose's phone, tap Send money under the text.", "Answer the guardian's question, then watch the money go on hold.", "On Maya's phone, read the brief and tap Block it."],
+    steps: ["On Rose's phone, tap Send money under the text.", "Hold On asks if they knew the family code word. Tap No, and the money goes on hold.", "On Maya's phone, read the brief and call tips, then tap Block it."],
   },
   {
     name: "invoice",
@@ -29,6 +29,12 @@ const SCENARIOS = [
     title: "Rose was coached",
     hint: "The scammer told Rose to say it's for a vacation. Her own rules still catch it.",
     steps: ["On Rose's phone, tap Send money.", "The innocent reason doesn't fool her $200 new-person rule.", "On Maya's phone, Release or Block."],
+  },
+  {
+    name: "teacher",
+    title: "A new piano teacher",
+    hint: "A real payment to someone new. Maya okays it once, and Hold On learns.",
+    steps: ["On Rose's phone, tap Send money. Clara is new and over $200, so it's held.", "On Maya's phone, tap Release…, tick Trust Clara from now on, then send.", "On Rose's phone, pay Clara $250 again: it goes straight through."],
   },
   {
     name: "agent",
@@ -115,7 +121,7 @@ function Board({ h, fresh }: { h: string; fresh: () => void }) {
           </p>
         )}
 
-        <section aria-label="Scenarios" className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <section aria-label="Scenarios" className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {SCENARIOS.map((s, i) => {
             const on = active === s.name;
             return (

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Payment } from "@/lib/store.ts";
 import { money, STATUS_WORDS, timeLeft, useHousehold, type HouseholdView } from "../client.ts";
-import { Avatar, Icon, Logo, Pill, Spinner, STATUS_TONE } from "../ui.tsx";
+import { Avatar, Icon, Logo, Pill, Spinner, STATUS_TONE, type IconName } from "../ui.tsx";
 
 export default function Maya() {
   const h = useSearchParams().get("h") ?? "rose-demo";
@@ -17,7 +17,7 @@ export default function Maya() {
     );
 
   const held = data.payments.filter((p) => p.status === "held");
-  const act = (id: string, action: "block" | "release" | "skip_time") => send("/api/payment", { id, action });
+  const act: Act = (id, action, extra = {}) => send("/api/payment", { id, action, ...extra });
   const stopped = data.payments.filter((p) => p.status === "blocked" || p.status === "cancelled" || p.status === "expired");
   const protectedTotal = stopped.reduce((s, p) => s + Number(p.amount), 0);
 
@@ -82,6 +82,7 @@ export default function Maya() {
             Check with {data.maya.name} before paying someone new more than {money(data.rules.newPayeeLimit).replace(".00", "")}.
           </Rule>
           {data.rules.secrecyPause && <Rule icon="lock">Always pause a payment someone asked to keep secret.</Rule>}
+          {data.rules.codeWord && <Rule icon="message">If someone says they&apos;re family and needs money fast, ask whether they knew the family code word.</Rule>}
           <Rule icon="clock">If {data.maya.name} doesn&apos;t answer within {data.rules.timeoutHours} hours, cancel it.</Rule>
         </ul>
       </main>
@@ -98,7 +99,9 @@ function Stat({ label, value, tone = "" }: { label: string; value: string; tone?
   );
 }
 
-function Rule({ icon, children }: { icon: "users" | "lock" | "clock"; children: React.ReactNode }) {
+type Act = (id: string, action: "block" | "release" | "skip_time", extra?: { trust?: boolean }) => void;
+
+function Rule({ icon, children }: { icon: IconName; children: React.ReactNode }) {
   return (
     <li className="flex gap-3 text-base leading-snug">
       <span className="icon-badge pill-brand size-8">
@@ -109,8 +112,9 @@ function Rule({ icon, children }: { icon: "users" | "lock" | "clock"; children: 
   );
 }
 
-function Alert({ p, data, busy, act }: { p: Payment; data: HouseholdView; busy: boolean; act: (id: string, a: "block" | "release" | "skip_time") => void }) {
+function Alert({ p, data, busy, act }: { p: Payment; data: HouseholdView; busy: boolean; act: Act }) {
   const [confirmRelease, setConfirmRelease] = useState(false);
+  const [trust, setTrust] = useState(false);
   const high = p.verdict?.risk === "high";
   return (
     <article className="rise mb-6 overflow-hidden rounded-[1.5rem] border border-line bg-surface shadow-md" aria-label={`Held payment: ${money(p.amount)} to ${p.to.name}`}>
@@ -168,6 +172,23 @@ function Alert({ p, data, busy, act }: { p: Payment; data: HouseholdView; busy: 
           </>
         )}
 
+        {!!p.verdict?.callTips?.length && (
+          <div className="mt-5 rounded-2xl border border-line p-4">
+            <h3 className="mb-2.5 flex items-center gap-2 font-bold">
+              <Icon name="phone" className="size-5 text-brand" />
+              When you call {data.rose.name}
+            </h3>
+            <ul className="grid gap-2">
+              {p.verdict.callTips.map((t) => (
+                <li key={t} className="flex gap-2.5 text-base leading-snug">
+                  <Icon name="check" className="mt-0.5 size-5 shrink-0 text-safe" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {p.turns.length > 0 && (
           <details className="mt-5 rounded-2xl border border-line p-4">
             <summary className="cursor-pointer font-bold">What {data.rose.name} told Hold On</summary>
@@ -193,7 +214,7 @@ function Alert({ p, data, busy, act }: { p: Payment; data: HouseholdView; busy: 
             Block it
           </button>
           {confirmRelease ? (
-            <button className="btn btn-safe" disabled={busy} onClick={() => act(p.id, "release")}>
+            <button className="btn btn-safe" disabled={busy} onClick={() => act(p.id, "release", { trust })}>
               <Icon name="check" />
               Yes, send {money(p.amount)}
             </button>
@@ -201,6 +222,15 @@ function Alert({ p, data, busy, act }: { p: Payment; data: HouseholdView; busy: 
             <button className="btn btn-secondary" onClick={() => setConfirmRelease(true)}>
               Release…
             </button>
+          )}
+          {confirmRelease && !p.to.known && (
+            <label className="choice min-h-0 text-base sm:col-span-2">
+              <input type="checkbox" className="size-5 shrink-0 accent-[var(--brand)]" checked={trust} onChange={(e) => setTrust(e.target.checked)} />
+              <span>
+                <span className="block font-bold">Trust {p.to.name} from now on</span>
+                <span className="text-muted">Everyday payments to them will go straight through.</span>
+              </span>
+            </label>
           )}
           <a className="btn btn-secondary sm:col-span-2" href={`tel:${data.rose.phone ?? "+15550100100"}`}>
             <Icon name="phone" />

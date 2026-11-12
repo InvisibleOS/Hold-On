@@ -27,6 +27,9 @@ export async function notifyMaya(h: Household, p: Payment): Promise<boolean> {
   const exp = p.holdUntil ?? Date.now() + 86_400_000;
   const link = (a: LinkAction) => `${base}/api/act?pid=${p.id}&action=${a}&exp=${exp}&sig=${sign(p.id, a, exp)}`;
   const open = `${base}/maya?h=${h.id}`;
+  const phone = h.rose.phone?.replace(/[^+\d]/g, "");
+  const third = phone ? `view, Call ${h.rose.name}, tel:${phone}` : `view, Open, ${open}`;
+  const tips = p.verdict?.callTips?.length ? `\n\nWhen you call: ${p.verdict.callTips.join(" · ")}` : "";
   try {
     const r = await fetch(`https://ntfy.sh/${encodeURIComponent(topic)}`, {
       method: "POST",
@@ -36,9 +39,9 @@ export async function notifyMaya(h: Household, p: Payment): Promise<boolean> {
         Priority: "high",
         Tags: "warning",
         Click: open,
-        Actions: `http, Block it, ${link("block")}, method=POST, clear=true; http, Release, ${link("release")}, method=POST, clear=true; view, Open, ${open}`,
+        Actions: `http, Block it, ${link("block")}, method=POST, clear=true; http, Release, ${link("release")}, method=POST, clear=true; ${third}`,
       },
-      body: p.verdict?.briefForMaya || `${h.rose.name} is trying to send $${p.amount} to ${p.to.name}.`,
+      body: (p.verdict?.briefForMaya || `${h.rose.name} is trying to send $${p.amount} to ${p.to.name}.`) + tips,
     });
     return r.ok;
   } catch {
