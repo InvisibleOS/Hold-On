@@ -77,7 +77,7 @@ export function timeLeft(until?: number) {
 
 // ---- Voice: the browser's own speech features, always optional ----
 
-export function speak(text: string, lang = "en-US") {
+export function speak(text: string, lang = (typeof navigator !== "undefined" && navigator.language) || "en-US") {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
