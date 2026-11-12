@@ -13,7 +13,7 @@ export type Payee = {
   typical?: number; // her usual amount to them
 };
 
-export type Turn = { by: "guardian" | "rose"; text: string; options?: string[]; kind?: "codeword" };
+export type Turn = { by: "guardian" | "rose"; text: string; options?: string[]; kind?: "codeword" | "callback" };
 
 export type RedFlag = { flag: string; evidence: string };
 
@@ -128,7 +128,7 @@ function seed(id: string): Household {
     id,
     rose: { name: "Rose", lang: "en" },
     maya: { name: "Maya", relation: "daughter" },
-    rules: { newPayeeLimit: 200, secrecyPause: true, timeoutHours: 24, codeWord: "blue pancakes" },
+    rules: { newPayeeLimit: 200, secrecyPause: true, timeoutHours: 24 },
     payees,
     payments: [
       history(payees[1], "180.00", "Fixed the kitchen sink", 21),

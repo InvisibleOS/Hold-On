@@ -19,7 +19,9 @@ test("known payee, usual amount: sent instantly", async () => {
 test("grandparent scam: held, then Maya blocks; second tap is refused", async () => {
   const h = getHousehold("test_scam");
   const p = await flow.startPayment(h, { payee: scam, amount: "2400.00", purpose: "Bail money, please don't tell Mom" });
-  await flow.answer(h, p, "I didn't ask"); // the family code word question comes first
+  assert.equal(p.turns[0].kind, "callback"); // "have you called them back?" comes first
+  assert.match(p.turns[0].text, /called Jake back/);
+  await flow.answer(h, p, "No, not yet");
   assert.equal(p.status, "held");
   assert.equal(p.verdict?.risk, "high");
   assert.ok(p.paypal.authorizationId && !p.paypal.captureId, "money held, not captured");
@@ -55,6 +57,7 @@ test("nobody answers: Rose's timeout voids the hold", async () => {
 
 test("family code word: asked first, a 'no' pins the risk at high", async () => {
   const h = getHousehold("test_codeword");
+  h.rules.codeWord = "blue pancakes";
   const p = await flow.startPayment(h, { payee: scam, amount: "2400.00", purpose: "Grandma it's me, I need bail" });
   assert.equal(p.status, "asking");
   assert.equal(p.turns[0].kind, "codeword");

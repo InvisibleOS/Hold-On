@@ -10,7 +10,7 @@ const SCENARIOS = [
     name: "grandson",
     title: "The grandson in jail",
     hint: "A panicked text asks Rose for $2,400 bail by Venmo, and to keep it secret.",
-    steps: ["On Rose's phone, tap Send money under the text.", "Hold On asks if they knew the family code word. Tap No, and the money goes on hold.", "On Maya's phone, read the brief and call tips, then tap Block it."],
+    steps: ["On Rose's phone, tap Send money under the text.", "Hold On asks if Rose has called Jake back on a number she already has. Tap No, not yet, and the money goes on hold.", "On Maya's phone, read the brief and call tips, then tap Block it."],
   },
   {
     name: "invoice",
