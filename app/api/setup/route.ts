@@ -5,6 +5,7 @@ import { getHousehold, log } from "@/lib/store.ts";
 
 const Body = z.object({
   h: z.string(),
+  rosePhone: z.string().trim().max(30).optional(),
   maya: z.object({
     name: z.string().trim().min(1).max(40),
     relation: z.string().trim().min(1).max(40),
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
     const b = Body.parse(await req.json());
     const h = getHousehold(b.h);
     h.maya = { ...b.maya };
+    h.rose.phone = b.rosePhone || undefined;
     h.rules = b.rules;
     h.rose.rulesSignedAt = Date.now();
     log(

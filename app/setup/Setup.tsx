@@ -15,6 +15,7 @@ export default function Setup() {
   const [name, setName] = useState("");
   const [relation, setRelation] = useState("");
   const [phone, setPhone] = useState("");
+  const [rosePhone, setRosePhone] = useState("");
   const [limit, setLimit] = useState(200);
   const [secrecy, setSecrecy] = useState(true);
   const [timeout, setTimeoutHours] = useState(24);
@@ -28,6 +29,7 @@ export default function Setup() {
       setName(data.maya.name);
       setRelation(data.maya.relation);
       setPhone(data.maya.phone ?? "");
+      setRosePhone(data.rose.phone ?? "");
       setLimit(data.rules.newPayeeLimit);
       setSecrecy(data.rules.secrecyPause);
       setTimeoutHours(data.rules.timeoutHours);
@@ -96,6 +98,7 @@ export default function Setup() {
         onSubmit={async (e) => {
           e.preventDefault();
           const r = await send("/api/setup", {
+            rosePhone: rosePhone || undefined,
             maya: { name, relation, phone: phone || undefined },
             rules: { newPayeeLimit: limit, secrecyPause: secrecy, timeoutHours: timeout },
           });
@@ -117,7 +120,13 @@ export default function Setup() {
               <span className="mb-1.5 block font-bold">
                 Their phone number <span className="font-normal text-muted">(optional)</span>
               </span>
-              <input className="field" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" autoComplete="tel" />
+              <input className="field" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block font-bold">
+                Your phone number <span className="font-normal text-muted">(optional, so {name || "they"} can call you)</span>
+              </span>
+              <input className="field" value={rosePhone} onChange={(e) => setRosePhone(e.target.value)} inputMode="tel" autoComplete="tel" />
             </label>
           </div>
         </Step>

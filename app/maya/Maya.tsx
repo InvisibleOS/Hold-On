@@ -202,7 +202,7 @@ function Alert({ p, data, busy, act }: { p: Payment; data: HouseholdView; busy: 
               Release…
             </button>
           )}
-          <a className="btn btn-secondary sm:col-span-2" href="tel:+15550100100">
+          <a className="btn btn-secondary sm:col-span-2" href={`tel:${data.rose.phone ?? "+15550100100"}`}>
             <Icon name="phone" />
             Call {data.rose.name} first
           </a>
