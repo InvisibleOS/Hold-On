@@ -1,5 +1,5 @@
 // In-memory state, one "household" per demo link (?h=...).
-// ponytail: lost on restart by design — every household re-seeds itself. Swap for Postgres when real users exist.
+// Note: lost on restart by design — every household re-seeds itself. Swap for Postgres when real users exist.
 
 export type Risk = "low" | "medium" | "high";
 export type Wallet = "PAYPAL" | "VENMO";
@@ -146,7 +146,7 @@ export function getHousehold(id: string): Household {
   if (!/^[a-z0-9_-]{4,40}$/i.test(id)) throw new Error("Bad household id");
   let h = households.get(id);
   if (!h) {
-    // ponytail: unbounded map; cap it so a flood of demo links can't exhaust memory.
+    // Note: unbounded map; cap it so a flood of demo links can't exhaust memory.
     if (households.size > 2000) households.delete(households.keys().next().value!);
     h = seed(id);
     households.set(id, h);

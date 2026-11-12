@@ -11,7 +11,7 @@ const Body = z.object({
   trust: z.boolean().optional(), // release only: trust this person from now on
 });
 
-// ponytail: the household link is the only credential (fine for a sandbox demo).
+// Note: the household link is the only credential (fine for a sandbox demo).
 // Real users would sign in, and only Maya's session could release or block.
 export async function POST(req: Request) {
   return handle(async () => {

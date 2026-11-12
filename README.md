@@ -61,7 +61,7 @@ Every mutating PayPal call sends a `PayPal-Request-Id` idempotency key, and each
 
 AI agents will soon shop and pay for people like Rose, and scammers already hide instructions in web pages to trick them. Hold On is also an **MCP server** that an agent pays through, instead of calling PayPal directly. Every agent payment gets the same hold-and-check as Rose's own, plus a rule for instructions hidden in a page:
 
-```bash
+```text
 MCP endpoint (Streamable HTTP): https://holdon-jdsx.onrender.com/api/mcp?h=<household>
 # tools: request_payment (guarded), payment_status
 ```
@@ -95,10 +95,10 @@ Without keys, the app runs in **demo mode**: PayPal calls return clearly labelle
 2. Under *Apps & Credentials*, create an app for the Hold On account and enable **Vault** (Advanced options) and **Payouts**. Then create a second app for SecureShield Billing.
 3. Fill in `.env.local`, then save Rose's PayPal once:
    ```bash
-   node scripts/spike.ts link          # open the URL, log in as Rose, agree
-   node scripts/spike.ts vault <setupTokenId>   # → ROSE_VAULT_ID
-   node scripts/spike.ts hold          # proves authorize, void, capture and payout
-   node scripts/spike.ts webhook <PUBLIC_URL>   # → PAYPAL_WEBHOOK_ID
+   node scripts/paypal-setup.ts link          # open the URL, log in as Rose, agree
+   node scripts/paypal-setup.ts vault <setupTokenId>   # → ROSE_VAULT_ID
+   node scripts/paypal-setup.ts hold          # proves authorize, void, capture and payout
+   node scripts/paypal-setup.ts webhook <PUBLIC_URL>   # → PAYPAL_WEBHOOK_ID
    ```
 4. Optional: set `NTFY_TOPIC` (any long random name) and `PUBLIC_URL` to get real phone pushes with Block and Release buttons through the [ntfy](https://ntfy.sh) app.
 

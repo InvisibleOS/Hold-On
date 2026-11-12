@@ -1,4 +1,4 @@
-// Phase 0 sandbox checks. Run: node scripts/spike.ts <step>
+// PayPal sandbox setup and checks. Run: node scripts/paypal-setup.ts <step>
 //   link            -> prints a URL; open it and log in as Rose's sandbox account
 //   vault <token>   -> turns the approved setup token into ROSE_VAULT_ID
 //   hold            -> authorize $10 + void, then authorize $10 + capture + payout to Jake (PayPal and Venmo)
@@ -15,18 +15,18 @@ const ms = () => `${Date.now() - t0}ms`;
 
 if (step === "link") {
   const { setupTokenId, approveUrl } = await pp.createSetupToken("https://example.com/return", "https://example.com/cancel");
-  console.log({ setupTokenId, approveUrl }, "\nOpen approveUrl, log in as Rose, then: node scripts/spike.ts vault", setupTokenId);
+  console.log({ setupTokenId, approveUrl }, "\nOpen approveUrl, log in as Rose, then: node scripts/paypal-setup.ts vault", setupTokenId);
 } else if (step === "vault") {
   console.log(await pp.createPaymentToken(arg), "\n-> put vaultId in .env.local as ROSE_VAULT_ID");
 } else if (step === "hold") {
   const vaultId = env("ROSE_VAULT_ID");
-  const voidId = `spike-${Date.now()}-a`;
+  const voidId = `setup-${Date.now()}-a`;
   const a = await pp.authorize({ vaultId, amount: "10.00", description: "Spike void", paymentId: voidId });
   console.log("authorized", a, ms());
   await pp.voidAuthorization(a.authorizationId, voidId);
   console.log("voided", ms());
 
-  const id = `spike-${Date.now()}-b`;
+  const id = `setup-${Date.now()}-b`;
   const b = await pp.authorize({ vaultId, amount: "10.00", description: "Spike capture", paymentId: id });
   console.log("authorized", b, ms());
   console.log("captured", await pp.capture(b.authorizationId, id), ms());
